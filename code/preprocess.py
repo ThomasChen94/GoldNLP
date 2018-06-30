@@ -11,7 +11,7 @@ def read_csv(file_path):
 	with open(file_path) as file:
 		line = file.readline()
 		while line:
-			item = line.split('\t') # split by tab, then in the format (number, sentence 1, sentence 2, label)
+			item = line.decode('utf8').split('\t') # split by tab, then in the format (number, sentence 1, sentence 2, label)
 
 			data_list.append((item[1],
 							  item[2],
@@ -20,4 +20,13 @@ def read_csv(file_path):
 
 	return data_list
 
+def prepare_train_test(data_list):
+	'''
+	split data into training and testing set
+	'''
+	data_list = shuffle(data_list)
+	split_ind = int(0.8 * len(data_list)) # split training and testing by 8:2
+	train_data = data_list[:split_ind] 
+	test_data = data_list[split_ind:len(data_list)]
+	return train_data, test_data
 
