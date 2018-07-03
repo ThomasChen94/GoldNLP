@@ -30,3 +30,31 @@ def prepare_train_test(data_list):
 	test_data = data_list[split_ind:len(data_list)]
 	return train_data, test_data
 
+def load_batches(data_list, batch_size):
+	'''
+	load data into batches
+	'''
+
+	data_x1 = []
+	data_x2 = []
+	data_y = []
+
+	for i in xrange(len(data_list) / batch_size):
+		start_ind = i * batch_size
+		end_ind = start_ind + batch_size
+
+		data_x1.append(data_list[start_ind : end_ind][0]) # first sentence
+		data_x2.append(data_list[start_ind : end_ind][1]) # second sentence
+		data_y.append(data_list[start_ind : end_ind][2]) # label
+
+
+	return data_x1, data_x2, data_y
+
+
+
+
+
+
+
+
+
