@@ -14,7 +14,7 @@ class siamese:
 
         # Create loss
         self.y = tf.placeholder(tf.float32, [None])
-        self.loss = self.loss_with_spring()
+        self.loss = self.cosine_sim_loss()
 
     def network(self, x):
         weights = []
@@ -33,20 +33,6 @@ class siamese:
     def cosine_sim_loss(self):
         cosine_sim_nume = tf.reduce_sum(tf.multiply(self.o1, self.o2), axis = 1)
         cosine_sim_denomi = tf.norm(self.o1, axis = 1) * tf.norm(self.o2, axis = 1)
-        cosine_sim = cosine_sim_nume / cosine_sim_denomi
+        self.cosine_sim = cosine_sim_nume / cosine_sim_denomi
         loss = tf.losses.mean_squared_error(self.y, self.cosine_sim)
-        return loss
-
-    def loss_with_step(self):
-        margin = 5.0
-        labels_t = self.y_
-        labels_f = tf.subtract(1.0, self.y_, name="1-yi")          # labels_ = !labels;
-        eucd2 = tf.pow(tf.subtract(self.o1, self.o2), 2)
-        eucd2 = tf.reduce_sum(eucd2, 1)
-        eucd = tf.sqrt(eucd2+1e-6, name="eucd")
-        C = tf.constant(margin, name="C")
-        pos = tf.multiply(labels_t, eucd, name="y_x_eucd")
-        neg = tf.multiply(labels_f, tf.maximum(0.0, tf.subtract(C, eucd)), name="Ny_C-eucd")
-        losses = tf.add(pos, neg, name="losses")
-        loss = tf.reduce_mean(losses, name="loss")
         return loss
