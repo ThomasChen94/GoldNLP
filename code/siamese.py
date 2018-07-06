@@ -3,18 +3,33 @@ import tensorflow as tf
 class siamese:
 
     # Create model
-    def __init__(self, feature_size):
-        self.x1 = tf.placeholder(tf.float32, [None, feature_size])
-        self.x2 = tf.placeholder(tf.float32, [None, feature_size])
+    def __init__(self, feature_size, embedding, word_id):
+        self.x1 = tf.placeholder(tf.int32, [None, feature_size])
+        self.x2 = tf.placeholder(tf.int32, [None, feature_size])
+        self.pretrained_embeddings = embedding
+
+        self.map_to_embedding()
+        s1, s2 = self.sum_layer()
 
         with tf.variable_scope("siamese") as scope:
-            self.o1 = self.network(self.x1)
+            self.o1 = self.network(s1)
             scope.reuse_variables()
-            self.o2 = self.network(self.x2)
+            self.o2 = self.network(s2)
 
         # Create loss
         self.y = tf.placeholder(tf.float32, [None])
         self.loss = self.cosine_sim_loss()
+        
+
+    def map_to_embedding(self):
+    	embeddingTensor = tf.Variable(self.pretrained_embeddings, tf.float32)
+    	self.x1_embed = tf.nn.embedding_lookup(embeddingTensor, self.x1)
+    	self.x2_embed = tf.nn.embedding_lookup(embeddingTensor, self.x2)
+
+    def sum_layer(self):
+    	s1 = tf.reduce_sum(self.x1_embed, axis = 1)
+    	s2 = tf.reduce_sum(self.x2_embed, axis = 1)
+    	return s1, s2
 
     def network(self, x):
         weights = []
@@ -25,8 +40,8 @@ class siamese:
         assert len(bottom.get_shape()) == 2
         n_prev_weight = bottom.get_shape()[1]
         initer = tf.truncated_normal_initializer(stddev=0.01)
-        W = tf.get_variable(name+'W', dtype=tf.float32, shape=[n_prev_weight, n_weight], initializer=initer)
-        b = tf.get_variable(name+'b', dtype=tf.float32, initializer=tf.constant(0.01, shape=[n_weight], dtype=tf.float32))
+        W = tf.get_variable(name+'W', dtype=tf.float64, shape=[n_prev_weight, n_weight], initializer=initer)
+        b = tf.get_variable(name+'b', dtype=tf.float64, initializer=tf.constant(0.01, shape=[n_weight], dtype=tf.float64))
         fc = tf.nn.bias_add(tf.matmul(bottom, W), b)
         return fc
 
