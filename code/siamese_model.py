@@ -19,7 +19,7 @@ class SiameseModel:
 		self.id_word = []
 		self.num_epochs = 5
 		self.test_gap = 100
-		self.save_gap = 1000
+		self.save_gap = 10
 
 	def load_previous_model(self, sess):
 		load = False
@@ -32,7 +32,7 @@ class SiameseModel:
 		        load = True
 
 		# start training
-		if load: self.saver.restore(sess, './model')
+		if load: self.saver.restore(sess, '../model/model')
 
 	def load_embedding(self, embed_path):
 
@@ -129,7 +129,7 @@ class SiameseModel:
 				if cur_iter % self.test_gap == 0:
 					self.evaluate(sess)
 				if cur_iter % self.save_gap == 0:
-					self.saver.save("../model/model")
+					self.saver.save(sess, "../model/model")
 
 	def evaluate(self, sess):
 		# first get the cosine similarity of each pair in testing set
